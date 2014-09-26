@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="/static/css/style.css">
+
+        <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="/static/css/jquery.dataTables.min.css">
+      
+    <!-- jQuery -->
+    <script type="text/javascript" charset="utf8" src="/static/js/jquery-2.1.1.min.js"></script>
+      
+    <!-- DataTables -->
+    <script type="text/javascript" charset="utf8" src="/static/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready( function () {
+        $('#jobs_table').DataTable();
+      } );
+    </script>
+  </head>
+  <body>
+    <a href="https://www.github.com/UnrealAkama/PassCrackNet" class="header-link"> PassCrackNet Home </a>|<a href="/" class="header-link"> Jobs List </a>|<a href="/input_job" class="header-link"> Create Job </a>
+
+    <table id="jobs_table" class="display" cellspacing="0" width="100%">
+      <thead>
+        <tr>
+          <td>Job Id</td>
+	  <td>Name</td>
+          <td>Tasks Dispatched</td>
+          <td>Progress</td>
+          <td>Results Found</td>
+          <td>Complete?</td>
+          <td>Pause</td>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .DisplayJobs}}
+          <tr>
+            <td>{{ .Id }}</td>
+	    <td>{{ .Name }}</td>
+            <td><a href="/jobs/{{ .Id }}/tasks">{{ .TasksDispatched }}</a></td>
+            <td>{{ .Progress }}%</td>
+            <td><a href="/jobs/{{ .Id }}/results">{{ .ResultsFound }}</a></td>
+            <td>{{ .Complete }}</td>
+            <td><a href="/api/jobs/{{ .Id }}/pause_toggle">{{ .Paused }}</a></td>
+          </tr>
+        {{end}}
+      </tbody>
+    </table>
+
+  </body>
+</html>

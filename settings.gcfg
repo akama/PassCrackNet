@@ -1,0 +1,9 @@
+[Settings]
+; port for serving the web server
+Port = 8080
+
+; where the hashcat executable is located
+Location = /home/isusec/oclHashcat-1.30/oclHashcat32.bin
+
+; address for serving the webserver
+Addr = 

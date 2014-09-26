@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="/static/css/style.css">
+
+        <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="/static/css/jquery.dataTables.min.css">
+      
+    <!-- jQuery -->
+    <script type="text/javascript" charset="utf8" src="/static/js/jquery-2.1.1.min.js"></script>
+      
+    <!-- DataTables -->
+    <script type="text/javascript" charset="utf8" src="/static/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready( function () {
+        $('#results_table').DataTable();
+      } );
+    </script>
+  </head>
+  <body>
+    <a href="https://www.github.com/UnrealAkama/PassCrackNet" class="header-link"> PassCrackNet Home </a>|<a href="/" class="header-link"> Jobs List </a>|<a href="/input_job" class="header-link"> Create Job </a>
+
+    <table id="results_table" class="display" cellspacing="0" width="100%">
+      <thead>
+        <tr>
+          <td>Hash</td>
+          <td>Salt</td>
+          <td>Password</td>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Results}}
+          <tr>
+            <td>{{ .Hash }}</td>
+            <td>{{ .Salt }}</td>
+            <td>{{ .Password }}</td>
+          </tr>
+        {{end}}
+      </tbody>
+    </table>
+
+  </body>
+</html>
