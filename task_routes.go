@@ -76,6 +76,7 @@ func FetchTask(w http.ResponseWriter, r *http.Request) {
 
 
 	jsonWriter(w, jsonResult)
+    session.Close()
 }
 
 func ReportResults(w http.ResponseWriter, r *http.Request) {
@@ -96,6 +97,7 @@ func ReportResults(w http.ResponseWriter, r *http.Request) {
 	new_job := loadJob(jobId(r, "job_id"), session)
 
 	fmt.Println(new_job)
+    session.Close()
 }
 
 func FinishTask(w http.ResponseWriter, r *http.Request) {

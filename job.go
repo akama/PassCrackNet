@@ -41,6 +41,7 @@ func (j *Job) update(con *mgo.Session) {
 		panic(err)
 	}
 
+    con.Close()
 }
 
 func (j *Job) IsDone() bool {
@@ -121,6 +122,8 @@ func createJob(AttackMode int, HashType int, HashFile []byte, Mask string, max i
 	}
 
 	j.save(con)
+
+    con.Close()
 
 	return
 }
