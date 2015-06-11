@@ -96,6 +96,10 @@ func InputJobSubmit(w http.ResponseWriter, r *http.Request){
     	return
     }
 
+    if r.FormValue("passcode") != "testcode" {
+        fmt.Println("No Auth.")
+    }
+
     maxLimit := runHashcat(attack, hashtype, r.FormValue("mask"))
 
 	createJob(attack, hashtype, output, r.FormValue("mask"), maxLimit, r.FormValue("name"), getConnection())
