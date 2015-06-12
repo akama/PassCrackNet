@@ -8,6 +8,7 @@ import (
 	"strconv"
 )
 
+// Outputs a list of tasks in json format.
 func ListTasks(w http.ResponseWriter, r *http.Request) {
 	session, _ := getCollection("tasks")
 	defer session.Close()
@@ -24,6 +25,7 @@ func ListTasks(w http.ResponseWriter, r *http.Request) {
 	jsonWriter(w, jsonResults)
 }
 
+// Output a specific task in json.
 func ShowTask(w http.ResponseWriter, r *http.Request) {
 	session, _ := getCollection("tasks")
 	defer session.Close()
@@ -46,6 +48,7 @@ func ShowTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+
 func TestPost(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()            // Parses the request body
 	x := r.Form.Get("hello") // x will be "" if parameter is not set
@@ -53,6 +56,7 @@ func TestPost(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// Creates a new task from a job and sends it out.
 func FetchTask(w http.ResponseWriter, r *http.Request) {
 	var taskRate int
 	m := jsonProssesor(r)
@@ -79,6 +83,7 @@ func FetchTask(w http.ResponseWriter, r *http.Request) {
     session.Close()
 }
 
+// Takes a result and saves to the database.
 func ReportResults(w http.ResponseWriter, r *http.Request) {
 
 	m := jsonProssesor(r)
@@ -100,6 +105,7 @@ func ReportResults(w http.ResponseWriter, r *http.Request) {
     session.Close()
 }
 
+// Marks a task as being complete
 func FinishTask(w http.ResponseWriter, r *http.Request) {
 	session := getConnection()
 
@@ -112,6 +118,7 @@ func FinishTask(w http.ResponseWriter, r *http.Request) {
 	j.finishTask(task_id)
 }
 
+// JSON helper.
 func jsonProssesor(r *http.Request) map[string]interface{} {
 	var jsonResults map[string]interface{}
 
@@ -128,6 +135,7 @@ func jsonProssesor(r *http.Request) map[string]interface{} {
 	return jsonResults
 }
 
+// Error Helper.
 func errorWriter(w http.ResponseWriter, err error) {
 	fmt.Println(err)
 	fmt.Fprintf(w, err.Error())

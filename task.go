@@ -14,7 +14,7 @@ type Task struct {
 	Timestamp	time.Time
 }
 
-
+// Marks a task as done.
 func (t *Task) finish() {
 	t.Done = true
 
