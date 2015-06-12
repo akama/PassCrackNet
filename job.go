@@ -21,6 +21,8 @@ type Job struct {
 	Name	   string    // Name of the job for humans
 }
 
+
+// Save the initial job to the database.
 func (j *Job) save(session *mgo.Session) {
 	c := session.DB(MONGO_DB).C("tasks")
 
@@ -31,6 +33,7 @@ func (j *Job) save(session *mgo.Session) {
 	}
 }
 
+// Save the updated job to the database.
 func (j *Job) update(con *mgo.Session) {
 	c := con.DB(MONGO_DB).C("tasks")
 
@@ -44,6 +47,7 @@ func (j *Job) update(con *mgo.Session) {
     con.Close()
 }
 
+// Checks if a job is done.
 func (j *Job) IsDone() bool {
 	if j.Start >= j.Finish {
 		for _, task := range j.Tasks {
@@ -57,6 +61,7 @@ func (j *Job) IsDone() bool {
 	}
 }
 
+// Gets a list of all the tasks todo.
 func (j *Job) TasksToDo() bool {
 	if j.Start >= j.Finish {
 		for _, task := range j.Tasks {
@@ -70,6 +75,7 @@ func (j *Job) TasksToDo() bool {
 	}
 }
 
+// Checks if the job is paused.
 func (j *Job) IsPaused() bool {
 	return j.Pause
 }
@@ -77,6 +83,7 @@ func (j *Job) IsPaused() bool {
 
 // HELPER FUNCTIONS
 
+// Loads a job from the database based on job id.
 func loadJob(id int, con *mgo.Session) *Job {
 	c := con.DB(MONGO_DB).C("tasks")
 
@@ -89,6 +96,7 @@ func loadJob(id int, con *mgo.Session) *Job {
 	return &job
 }
 
+// Marks a task as finished.
 func (j *Job) finishTask(task_id int) {
 	j.Tasks[task_id-1].Done = true
 	j.update(getConnection())
@@ -97,6 +105,7 @@ func (j *Job) finishTask(task_id int) {
 	fmt.Println("Task has been marked as finished.")
 }
 
+// Creates a job and saves it to the database.
 func createJob(AttackMode int, HashType int, HashFile []byte, Mask string, max int, name string,  con *mgo.Session) (j Job) {
 	c := con.DB(MONGO_DB).C("tasks")
 
