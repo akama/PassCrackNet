@@ -1,25 +1,25 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
-	"net/http"
-	"html/template"
 	"fmt"
+	"github.com/gorilla/mux"
+    "html/template"
+	"net/http"
 	"os/exec"
 	// "io"
+	"code.google.com/p/gcfg"
 	"io/ioutil"
+	"labix.org/v2/mgo/bson"
 	"strconv"
 	"strings"
-	"labix.org/v2/mgo/bson"
-	"code.google.com/p/gcfg"
 )
 
 type Config struct {
-    Settings struct {
-    	Port string
-	    Location string
-	    Addr string
-    }
+	Settings struct {
+		Port     string
+		Location string
+		Addr     string
+	}
 }
 
 func main() {
@@ -38,12 +38,12 @@ func main() {
 	// Web Routes
 	r.HandleFunc("/input_job", InputJobDisplay).Methods("GET")
 	r.HandleFunc("/input_job", InputJobSubmit).Methods("POST")
-	r.HandleFunc("/", mainJobPage) // Lists all the jobs
-	r.HandleFunc("/jobs/{job_id}/tasks", jobTasks) // Lists all the tasks for a job
+	r.HandleFunc("/", mainJobPage)                     // Lists all the jobs
+	r.HandleFunc("/jobs/{job_id}/tasks", jobTasks)     // Lists all the tasks for a job
 	r.HandleFunc("/jobs/{job_id}/results", jobResults) // Lists all the results for a job
 
-	// Serve static files. 
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static",http.FileServer(http.Dir("static/"))))
+	// Serve static files.
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static", http.FileServer(http.Dir("static/"))))
 
 	// API Routes
 	s := r.PathPrefix("/api/jobs").Subrouter()
@@ -63,55 +63,55 @@ func main() {
 	http.ListenAndServe(WEB_PORT, nil)
 }
 
-func InputJobSubmit(w http.ResponseWriter, r *http.Request){
-    // name := r.PostFormValue("name")
-   	r.ParseMultipartForm(32 << 20)
-    file, _, err := r.FormFile("hashfile")
-    
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
-    
+func InputJobSubmit(w http.ResponseWriter, r *http.Request) {
+	// name := r.PostFormValue("name")
+	r.ParseMultipartForm(32 << 20)
+	file, _, err := r.FormFile("hashfile")
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	defer file.Close()
-    
+
 	output, err := ioutil.ReadAll(file)
 
 	if err != nil {
-			fmt.Println(err)
-			return
+		fmt.Println(err)
+		return
 	}
 
-    attack, err := strconv.Atoi(r.FormValue("attack"))
+	attack, err := strconv.Atoi(r.FormValue("attack"))
 
-    if err != nil {
-    	fmt.Println(err)
-    	return
-    }
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-    hashtype, err := strconv.Atoi(r.FormValue("hashtype"))
+	hashtype, err := strconv.Atoi(r.FormValue("hashtype"))
 
-    if err != nil {
-    	fmt.Println(err)
-    	return
-    }
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-    if r.FormValue("passcode") != "testcode" {
-        fmt.Println("No Auth.")
-    }
+	if r.FormValue("passcode") != "testcode" {
+		fmt.Println("No Auth.")
+	}
 
-    maxLimit := runHashcat(attack, hashtype, r.FormValue("mask"))
+	maxLimit := runHashcat(attack, hashtype, r.FormValue("mask"))
 
 	createJob(attack, hashtype, output, r.FormValue("mask"), maxLimit, r.FormValue("name"), getConnection())
 
 	fmt.Fprintf(w, "")
 }
 
-func InputJobDisplay(w http.ResponseWriter, r *http.Request){
+func InputJobDisplay(w http.ResponseWriter, r *http.Request) {
 	t := template.New("Job Input")
 	t, err := template.ParseFiles("templates/job_input.html")
 
-	if (err != nil) {
+	if err != nil {
 		panic(err)
 	}
 
@@ -135,7 +135,7 @@ func runHashcat(attackMode int, hashMode int, mask string) (result int) {
 
 	// fmt.Println(command + " -a " + attackMode + " -m " + hashMode + " input.txt " + mask + " --force " + "--keyspace")
 
-	out, err := exec.Command(command, "-a", strconv.Itoa(attackMode), "-m", strconv.Itoa(hashMode), "input.txt", mask, "--force",  "--keyspace").CombinedOutput()
+	out, err := exec.Command(command, "-a", strconv.Itoa(attackMode), "-m", strconv.Itoa(hashMode), "input.txt", mask, "--force", "--keyspace").CombinedOutput()
 
 	if err != nil {
 		fmt.Println(err)
@@ -154,24 +154,23 @@ func runHashcat(attackMode int, hashMode int, mask string) (result int) {
 	return
 }
 
-
-// Used only to keep calculations out of the template. 
+// Used only to keep calculations out of the template.
 // Should never been in the db, only calculated on the fly.
 type DisplayJob struct {
-	Id         int
-	Name 		string
-	TasksDispatched	int
-	Progress	float64
-	ResultsFound	int
-	Complete	bool
-	Paused	bool
+	Id              int
+	Name            string
+	TasksDispatched int
+	Progress        float64
+	ResultsFound    int
+	Complete        bool
+	Paused          bool
 }
 
-func mainJobPage(w http.ResponseWriter, r *http.Request){
+func mainJobPage(w http.ResponseWriter, r *http.Request) {
 	t := template.New("Jobs List")
 	t, err := template.ParseFiles("templates/index.html")
 
-	if (err != nil) {
+	if err != nil {
 		panic(err)
 	}
 
@@ -191,31 +190,31 @@ func mainJobPage(w http.ResponseWriter, r *http.Request){
 	// Create a display array for the webpage
 	for i := 0; i < len(results); i++ {
 		progress := (float64(results[i].Start) / float64(results[i].Finish)) * 100
-		displayResults[i] = DisplayJob {
-								results[i].Id,
-								results[i].Name,
-								len(results[i].Tasks),
-								progress,
-								//float64(int(progress * 10)) / 10,
-								len(results[i].Results),
-								results[i].IsDone(),
-								results[i].IsPaused(),
-							}
+		displayResults[i] = DisplayJob{
+			results[i].Id,
+			results[i].Name,
+			len(results[i].Tasks),
+			progress,
+			//float64(int(progress * 10)) / 10,
+			len(results[i].Results),
+			results[i].IsDone(),
+			results[i].IsPaused(),
+		}
 	}
 
 	data := struct {
 		DisplayJobs []DisplayJob
-	}{ displayResults }
+	}{displayResults}
 
 	t.Execute(w, data)
 	return
 }
 
-func jobTasks(w http.ResponseWriter, r *http.Request){
+func jobTasks(w http.ResponseWriter, r *http.Request) {
 	t := template.New("Task List")
 	t, err := template.ParseFiles("templates/tasks.html")
 
-	if (err != nil) {
+	if err != nil {
 		panic(err)
 	}
 
@@ -229,17 +228,17 @@ func jobTasks(w http.ResponseWriter, r *http.Request){
 
 	data := struct {
 		Tasks []Task
-	}{ job.Tasks }
+	}{job.Tasks}
 
 	t.Execute(w, data)
 	return
 }
 
-func jobResults(w http.ResponseWriter, r *http.Request){
+func jobResults(w http.ResponseWriter, r *http.Request) {
 	t := template.New("Results List")
 	t, err := template.ParseFiles("templates/results.html")
 
-	if (err != nil) {
+	if err != nil {
 		panic(err)
 	}
 
@@ -253,7 +252,7 @@ func jobResults(w http.ResponseWriter, r *http.Request){
 
 	data := struct {
 		Results []Result
-	}{ job.Results }
+	}{job.Results}
 
 	t.Execute(w, data)
 	return
