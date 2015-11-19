@@ -19,6 +19,7 @@ type Config struct {
 		Port     string
 		Location string
 		Addr     string
+        Password string
 	}
 }
 
@@ -64,6 +65,14 @@ func main() {
 }
 
 func InputJobSubmit(w http.ResponseWriter, r *http.Request) {
+	var cfg Config
+
+	err := gcfg.ReadFileInto(&cfg, "settings.gcfg")
+	if err != nil {
+        fmt.Println("ERROR: Reading Config File.")
+		panic(err)
+	}
+
 	// name := r.PostFormValue("name")
 	r.ParseMultipartForm(32 << 20)
 	file, _, err := r.FormFile("hashfile")
@@ -96,7 +105,7 @@ func InputJobSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.FormValue("passcode") != "testcode" {
+	if r.FormValue("passcode") != cfg.Settings.Password {
 		fmt.Println("No Auth.")
 	}
 
